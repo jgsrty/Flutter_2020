@@ -1,21 +1,24 @@
 import 'package:flutter/material.dart';
 
-class CategoryPage extends StatefulWidget {
-  CategoryPage({Key key}) : super(key: key);
+class HomePage extends StatefulWidget {
+  HomePage({Key key}) : super(key: key);
 
   @override
-  _CategoryPageState createState() => _CategoryPageState();
+  _HomePageState createState() => _HomePageState();
 }
 
-class _CategoryPageState extends State<CategoryPage> {
+class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         RaisedButton(
-          child: Text('加载表单页传值'),
+          child: Text('表单演示'),
           onPressed: () => {
-            // Navigator.pushNamed(context, '/form'),
+            Navigator.pushNamed(
+              context,
+              '/form',
+            ),
           },
           color: Theme.of(context).accentColor,
           textTheme: ButtonTextTheme.primary,

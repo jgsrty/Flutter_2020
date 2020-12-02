@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import '../pages/Tabs.dart';
-import '../pages/DatePicker.dart';
-import '../pages/CupertinoDate.dart';
+import '../pages/FormDemo.dart';
 
 final routes = {
   '/': (ctx) => Tabs(),
-  '/datePicker': (ctx) => DatePickerPage(),
-  '/cupertinoDate': (ctx) => CupertinoDatePage(),
+  '/form': (ctx) => FormDemoPage(),
 };
 
 var generateRoute = (RouteSettings settings) {

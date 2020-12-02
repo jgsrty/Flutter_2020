@@ -28,6 +28,11 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.0
+  date_format: ^1.0.9
+  flutter_cupertino_date_picker:
+    git:
+      url: https://github.com/imshashank/flutter-cupertino-date-picker # Repo
+      ref: master # Branch name
 
 dev_dependencies:
   flutter_test:
