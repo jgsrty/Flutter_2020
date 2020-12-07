@@ -15,7 +15,7 @@ class _CategoryPageState extends State<CategoryPage> {
     ScreenAdapter.init(context);
     var _leftWidth = ScreenAdapter.screenWidth() / 5;
     var _rightItemWidth = (ScreenAdapter.screenWidth() - _leftWidth - 40) / 3;
-    var _rightItemHeight = _rightItemWidth + ScreenAdapter.height(30);
+    var _rightItemHeight = _rightItemWidth + ScreenAdapter.height(32);
 
     return Row(
       children: [
@@ -75,7 +75,7 @@ class _CategoryPageState extends State<CategoryPage> {
                         ),
                       ),
                       Container(
-                        height: ScreenAdapter.height(30),
+                        height: ScreenAdapter.height(32),
                         child: Text('女装'),
                       )
                     ],
