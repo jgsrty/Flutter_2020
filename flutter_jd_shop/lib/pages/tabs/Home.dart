@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import '../../services/ScreenAdapter.dart';
+import 'package:dio/dio.dart';
+import '../../config/Config.dart';
+import '../../model/SwiperModel.dart';
+import '../../model/ProductModel.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({Key key}) : super(key: key);
@@ -10,6 +14,45 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  List _swiperData = [];
+  List _productLikeData = [];
+  List _productHotData = [];
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _getSwiperData();
+    _getProductLikeData();
+    _getProductHotData();
+  }
+
+  // 轮播数据
+  _getSwiperData() async {
+    var api = '${Config.domain}api/focus';
+    var res = await Dio().get(api);
+    setState(() {
+      this._swiperData = SwiperModel.fromJson(res.data).result;
+    });
+  }
+
+  // 猜你喜欢数据
+  _getProductLikeData() async {
+    var api = '${Config.domain}api/plist?is_hot=1';
+    var res = await Dio().get(api);
+    setState(() {
+      this._productLikeData = ProductModel.fromJson(res.data).result;
+    });
+  }
+
+  // 热门推荐数据
+  _getProductHotData() async {
+    var api = '${Config.domain}api/plist?is_best=1';
+    var res = await Dio().get(api);
+    setState(() {
+      this._productHotData = ProductModel.fromJson(res.data).result;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     ScreenAdapter.init(context);
@@ -20,52 +63,41 @@ class _HomePageState extends State<HomePage> {
         _indexTitle('猜你喜欢'),
         _indexLikes(),
         _indexTitle('热门推荐'),
-        Container(
-          margin: EdgeInsets.all(ScreenAdapter.width(10)),
-          child: Wrap(
-            runSpacing: ScreenAdapter.height(10),
-            spacing: ScreenAdapter.width(10),
-            children: [
-              _productItem(),
-              _productItem(),
-              _productItem(),
-              _productItem(),
-            ],
-          ),
-        )
+        _productItem()
       ],
     );
   }
 
   // 轮播
   Widget _indexSwiper() {
-    List<Map> imageList = [
-      {'url': 'https://www.itying.com/images/flutter/slide01.jpg'},
-      {'url': 'https://www.itying.com/images/flutter/slide02.jpg'},
-      {'url': 'https://www.itying.com/images/flutter/slide03.jpg'}
-    ];
-    return Container(
-      child: AspectRatio(
-        aspectRatio: 2 / 1,
-        child: Swiper(
-          itemBuilder: (BuildContext context, int index) {
-            return new Image.network(
-              imageList[index]['url'],
-              fit: BoxFit.fill,
-            );
-          },
-          autoplay: true,
-          itemCount: imageList.length,
-          pagination: new SwiperPagination(),
+    if (_swiperData.length > 0) {
+      return Container(
+        child: AspectRatio(
+          aspectRatio: 2 / 1,
+          child: Swiper(
+            itemBuilder: (BuildContext context, int index) {
+              String pic = _swiperData[index].pic;
+              pic = Config.domain + pic.replaceAll('\\', '/');
+              return new Image.network(
+                pic,
+                fit: BoxFit.fill,
+              );
+            },
+            autoplay: true,
+            itemCount: _swiperData.length,
+            pagination: new SwiperPagination(),
+          ),
         ),
-      ),
-    );
+      );
+    } else {
+      return Text('加载中');
+    }
   }
 
   // title
   _indexTitle(val) {
     return Container(
-      height: ScreenAdapter.height(30),
+      height: ScreenAdapter.height(40),
       margin: EdgeInsets.only(left: ScreenAdapter.width(10)),
       padding: EdgeInsets.only(left: ScreenAdapter.width(10)),
       decoration: BoxDecoration(
@@ -87,23 +119,32 @@ class _HomePageState extends State<HomePage> {
   _indexLikes() {
     return Container(
       padding: EdgeInsets.all(ScreenAdapter.width(10)),
-      height: ScreenAdapter.height(200),
+      height: ScreenAdapter.height(210),
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        itemCount: 9,
+        itemCount: _productLikeData.length,
         itemBuilder: (BuildContext context, int index) {
+          String pic = _productLikeData[index].sPic;
+          pic = Config.domain + pic.replaceAll('\\', '/');
           return Column(
             children: [
               Container(
                 margin: EdgeInsets.only(right: ScreenAdapter.width(10)),
-                height: ScreenAdapter.height(150),
-                // width: ScreenAdapter.width(150),
+                height: ScreenAdapter.height(140),
+                width: ScreenAdapter.width(140),
                 child: Image.network(
-                  'https://www.itying.com/images/flutter/hot${index + 1}.jpg',
+                  pic,
                   fit: BoxFit.cover,
                 ),
               ),
-              Text('第$index条')
+              Container(
+                height: ScreenAdapter.height(40),
+                width: ScreenAdapter.width(140),
+                child: Text(
+                  '￥${_productLikeData[index].price}',
+                  textAlign: TextAlign.center,
+                ),
+              )
             ],
           );
         },
@@ -111,60 +152,70 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  //商品
+  //热门推荐
   _productItem() {
     var width = (ScreenAdapter.screenWidth() - ScreenAdapter.width(34)) / 2;
+
     return Container(
-      padding: EdgeInsets.all(ScreenAdapter.width(10)),
-      width: width,
-      decoration: BoxDecoration(
-        border:
-            Border.all(width: ScreenAdapter.width(1), color: Colors.black26),
-      ),
-      child: Column(
-        children: [
-          Container(
-            width: double.infinity,
-            child: Image.network(
-                'https://www.itying.com/images/flutter/list1.jpg',
-                fit: BoxFit.cover),
-          ),
-          Padding(
-            padding: EdgeInsets.only(top: ScreenAdapter.height(10)),
-            child: Text(
-              '放大放大放大放大放大放大放大放大放大放大放大放大放大放大放大放大放大放大放大放大放大放大放大放大',
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(color: Colors.black54),
+      margin: EdgeInsets.all(ScreenAdapter.width(10)),
+      child: Wrap(
+        runSpacing: ScreenAdapter.height(10),
+        spacing: ScreenAdapter.width(10),
+        children: this._productHotData.map((val) {
+          var pic = val.sPic;
+          pic = Config.domain + pic.replaceAll('\\', '/');
+          return Container(
+            padding: EdgeInsets.all(ScreenAdapter.width(10)),
+            width: width,
+            decoration: BoxDecoration(
+              border: Border.all(
+                  width: ScreenAdapter.width(1), color: Colors.black26),
             ),
-          ),
-          Padding(
-            padding: EdgeInsets.only(top: ScreenAdapter.height(10)),
-            child: Stack(
+            child: Column(
               children: [
-                Align(
-                  alignment: Alignment.centerLeft,
+                Container(
+                  width: double.infinity,
+                  child: Image.network(pic, fit: BoxFit.cover),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(top: ScreenAdapter.height(10)),
                   child: Text(
-                    '¥100.00',
-                    style: TextStyle(
-                      color: Colors.red,
-                      fontSize: 16,
-                    ),
+                    val.title,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(color: Colors.black54),
                   ),
                 ),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: Text(
-                    '¥199.00',
-                    style: TextStyle(
-                      decoration: TextDecoration.lineThrough,
-                    ),
+                Padding(
+                  padding: EdgeInsets.only(top: ScreenAdapter.height(10)),
+                  child: Stack(
+                    children: [
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          '¥${val.price}',
+                          style: TextStyle(
+                            color: Colors.red,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: Text(
+                          '¥${val.oldPrice}',
+                          style: TextStyle(
+                            decoration: TextDecoration.lineThrough,
+                          ),
+                        ),
+                      )
+                    ],
                   ),
-                )
+                ),
               ],
             ),
-          ),
-        ],
+          );
+        }).toList(),
       ),
     );
   }
