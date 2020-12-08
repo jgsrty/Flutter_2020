@@ -77,7 +77,7 @@ class _HomePageState extends State<HomePage>
     );
   }
 
-  Widget _appBar() {
+  _appBar() {
     return AppBar(
       title: InkWell(
         child: Container(

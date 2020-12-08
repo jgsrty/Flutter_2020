@@ -16,24 +16,34 @@ class ProductListPage extends StatefulWidget {
 class _ProductListPageState extends State<ProductListPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   ScrollController _scrollController = ScrollController();
+  var _initTextController = TextEditingController();
   int _page = 1; //分页
   int _pageSize = 8;
   List _productDataList = [];
   String _sort = ''; //排序
-  bool _flag = true;
   bool _hasMore = true;
+  bool _hasData = true;
+  String _searchParams;
 
   @override
   void initState() {
     super.initState();
+    // 初始化搜索项
+    if (widget.arguments['key'] == null) {
+      _searchParams = 'cid=${widget.arguments["id"]}';
+      _initTextController.text = '';
+    } else {
+      _initTextController.text = widget.arguments["key"];
+      _searchParams = 'search=${_initTextController.text}';
+    }
+    print(_searchParams);
     _getProductListData();
     // 监听滚动条
     _scrollController.addListener(() {
       //_scrollController.position.pixels //获取滚动条滚动高度
       //_scrollController.position.maxScrollExtent  //获取页面高度
-      if (_scrollController.position.pixels >
-              _scrollController.position.maxScrollExtent - 40 &&
-          _flag &&
+      if (_scrollController.position.pixels ==
+              _scrollController.position.maxScrollExtent &&
           _hasMore) {
         _getProductListData();
       }
@@ -41,13 +51,12 @@ class _ProductListPageState extends State<ProductListPage> {
   }
 
   _getProductListData() async {
-    _flag = false;
     var api =
-        '${Config.domain}api/plist?cid=${widget.arguments["id"]}&page=$_page&pageSize=$_pageSize&sort=$_sort';
+        '${Config.domain}api/plist?$_searchParams&page=$_page&pageSize=$_pageSize&sort=$_sort';
     print(api);
     var res = await Dio().get(api);
-    _flag = true;
     var productData = ProductModel.fromJson(res.data).result;
+    _hasData = productData.length == 0 && _page == 1 ? true : false;
     if (productData.length < this._pageSize) {
       setState(() {
         this._productDataList.addAll(productData);
@@ -67,22 +76,62 @@ class _ProductListPageState extends State<ProductListPage> {
     ScreenAdapter.init(context);
     return Scaffold(
       key: _scaffoldKey,
-      appBar: AppBar(
-        title: Text('商品列表'),
-        actions: [Text('')],
-      ),
+      appBar: _appBar(),
       // body: Text("${widget.arguments}"),
       endDrawer: Drawer(
         child: Container(
           child: Text('筛选'),
         ),
       ),
-      body: Stack(
-        children: [
-          _productList(),
-          _positionFilter(),
-        ],
+      body: _hasData
+          ? Center(child: Text('没有相关数据'))
+          : Stack(
+              children: [
+                _productList(),
+                _positionFilter(),
+              ],
+            ),
+    );
+  }
+
+  _appBar() {
+    return AppBar(
+      title: Container(
+        height: ScreenAdapter.height(68),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          color: Color.fromRGBO(233, 233, 233, .8),
+        ),
+        child: TextField(
+          controller: _initTextController,
+          autofocus: true,
+          decoration: InputDecoration(
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide.none,
+            ),
+          ),
+          onChanged: (v) {
+            _initTextController.text = v;
+          },
+        ),
       ),
+      actions: [
+        InkWell(
+          child: Container(
+            height: ScreenAdapter.height(68),
+            width: ScreenAdapter.width(80),
+            child: Center(
+              child: Text('搜索'),
+            ),
+          ),
+          onTap: () {
+            setState(() {
+              _getProductListData();
+            });
+          },
+        ),
+      ],
     );
   }
 
