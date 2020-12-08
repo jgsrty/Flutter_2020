@@ -14,6 +14,10 @@ class ScreenAdapter {
     return ScreenUtil().setWidth(val);
   }
 
+  static size(val) {
+    return ScreenUtil().setSp(val);
+  }
+
   static screenWidth() {
     return ScreenUtil().screenWidth;
   }

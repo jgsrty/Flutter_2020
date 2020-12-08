@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
 import '../pages/tabs/Tabs.dart';
+import '../pages/ProductList.dart';
 import '../pages/Search.dart';
 
 final routes = {
   '/': (ctx) => Tabs(),
-  '/search': (ctx) => Search(),
+  '/productList': (ctx, {arguments}) => ProductListPage(arguments: arguments),
+  '/search': (
+    ctx,
+  ) =>
+      Search(),
 };
 
 var generateRoute = (RouteSettings settings) {

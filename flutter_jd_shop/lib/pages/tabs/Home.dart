@@ -13,10 +13,16 @@ class HomePage extends StatefulWidget {
   _HomePageState createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage>
+    with AutomaticKeepAliveClientMixin {
   List _swiperData = [];
   List _productLikeData = [];
   List _productHotData = [];
+
+  @override
+  // TODO: implement wantKeepAlive
+  bool get wantKeepAlive => true;
+
   @override
   void initState() {
     // TODO: implement initState
@@ -56,14 +62,61 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     ScreenAdapter.init(context);
-    return ListView(
-      children: [
-        _indexSwiper(),
-        SizedBox(height: ScreenAdapter.height(5)),
-        _indexTitle('猜你喜欢'),
-        _indexLikes(),
-        _indexTitle('热门推荐'),
-        _productItem()
+    return Scaffold(
+      appBar: _appBar(),
+      body: ListView(
+        children: [
+          _indexSwiper(),
+          SizedBox(height: ScreenAdapter.height(5)),
+          _indexTitle('猜你喜欢'),
+          _indexLikes(),
+          _indexTitle('热门推荐'),
+          _productItem()
+        ],
+      ),
+    );
+  }
+
+  Widget _appBar() {
+    return AppBar(
+      title: InkWell(
+        child: Container(
+          padding: EdgeInsets.only(left: 10),
+          height: ScreenAdapter.height(76),
+          decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              color: Color.fromRGBO(233, 233, 233, .8)),
+          child: Row(
+            children: [
+              Icon(Icons.search, size: ScreenAdapter.size(34)),
+              Text(
+                'iphone',
+                style: TextStyle(fontSize: ScreenAdapter.size(28)),
+              ),
+            ],
+          ),
+        ),
+        onTap: () {
+          Navigator.pushNamed(context, '/search');
+        },
+      ),
+      leading: IconButton(
+        icon: Icon(
+          Icons.center_focus_weak,
+          size: ScreenAdapter.size(40),
+          color: Colors.black87,
+        ),
+        onPressed: null,
+      ),
+      actions: [
+        IconButton(
+          icon: Icon(
+            Icons.message,
+            size: ScreenAdapter.size(40),
+            color: Colors.black87,
+          ),
+          onPressed: null,
+        ),
       ],
     );
   }
