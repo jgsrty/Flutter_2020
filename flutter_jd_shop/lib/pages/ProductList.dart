@@ -28,7 +28,6 @@ class _ProductListPageState extends State<ProductListPage> {
   @override
   void initState() {
     super.initState();
-    // 初始化搜索项
     if (widget.arguments['key'] == null) {
       _searchParams = 'cid=${widget.arguments["id"]}';
       _initTextController.text = '';
@@ -36,7 +35,6 @@ class _ProductListPageState extends State<ProductListPage> {
       _initTextController.text = widget.arguments["key"];
       _searchParams = 'search=${_initTextController.text}';
     }
-    print(_searchParams);
     _getProductListData();
     // 监听滚动条
     _scrollController.addListener(() {
@@ -51,6 +49,12 @@ class _ProductListPageState extends State<ProductListPage> {
   }
 
   _getProductListData() async {
+    if (widget.arguments['key'] == null) {
+      _searchParams = 'cid=${widget.arguments["id"]}';
+    } else {
+      _searchParams = 'search=${_initTextController.text}';
+      this._page = 1;
+    }
     var api =
         '${Config.domain}api/plist?$_searchParams&page=$_page&pageSize=$_pageSize&sort=$_sort';
     print(api);
@@ -83,6 +87,21 @@ class _ProductListPageState extends State<ProductListPage> {
           child: Text('筛选'),
         ),
       ),
+      // body: GestureDetector(
+      //   behavior: HitTestBehavior.translucent,
+      //   onTap: () {
+      //     // 触摸收起键盘
+      //     FocusScope.of(context).requestFocus(FocusNode());
+      //   },
+      //   child: _hasData
+      //       ? Center(child: Text('没有相关数据'))
+      //       : Stack(
+      //           children: [
+      //             _productList(),
+      //             _positionFilter(),
+      //           ],
+      //         ),
+      // ),
       body: _hasData
           ? Center(child: Text('没有相关数据'))
           : Stack(
@@ -104,16 +123,16 @@ class _ProductListPageState extends State<ProductListPage> {
         ),
         child: TextField(
           controller: _initTextController,
-          autofocus: true,
+          // autofocus: true,
           decoration: InputDecoration(
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
               borderSide: BorderSide.none,
             ),
           ),
-          onChanged: (v) {
-            _initTextController.text = v;
-          },
+          // onChanged: (v) {
+          //   _initTextController.text = v;
+          // },
         ),
       ),
       actions: [
@@ -128,6 +147,7 @@ class _ProductListPageState extends State<ProductListPage> {
           onTap: () {
             setState(() {
               _getProductListData();
+              FocusScope.of(context).unfocus();
             });
           },
         ),
